@@ -4,7 +4,7 @@
   "description": "PJBank Demo",
   "start_url": "./?homescreen=1",
   "display": "standalone",
-  "theme_color": "#00a5ae",
+  "theme_color": "#674995",
   "background_color": "#674995",
   "icons": [
     {

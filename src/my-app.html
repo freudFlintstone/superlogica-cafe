@@ -22,6 +22,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="my-icons.html">
 
+<link rel="import" href="../bower_components/polymerfire/firebase-app.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-auth.html">
+<script src="https://storage.googleapis.com/prshim/v1/payment-shim.js"></script>
+<link rel="import" href="../bower_components/payment-request/payment-request-all.html">
+
+
+<link rel="import" href="auth-provider-picker.html">
 <link rel="lazy-import" href="my-view1.html">
 <link rel="lazy-import" href="my-view2.html">
 <link rel="lazy-import" href="my-view3.html">
@@ -39,11 +46,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         display: block;
       }
       #logo {
-        max-height: 100%;
+        max-height: 72px;
+        text-align: center;
         margin: auto;
       }
       #logo img {
-        max-height: 90%;
+        max-height: 72px;
+        height: 80%;
+        width: 80%;
         margin: auto;
         text-align: center;
         vertical-align: middle;
@@ -59,6 +69,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       app-header paper-icon-button {
         --paper-icon-button-ink-color: white;
+      }
+
+      .avatar {
+        margin-top: 4px;
+        width: 42px;
+        border-radius: 50%;
       }
 
       .menu {
@@ -84,13 +100,37 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         /* font-weight: bold; */
       }
     </style>
+    <firebase-app
+      auth-domain="superlogica-cafe.firebaseapp.com"
+      database-url="https://superlogica-cafe.firebaseio.com/"
+      api-key="AIzaSyDFp3PYMWdoP5cUuMBA1grvYVHC1OljQUU"
+      storage-bucket="superlogica-cafe.appspot.com"
+      messaging-sender-id="1077864931636">
+    </firebase-app>
+    <firebase-auth id="auth" user="{{user}}" provider="{{authProvider}}" signedIn="[[signedIn]]" on-error="handleError">
+    </firebase-auth>
 
+    <auth-provider-picker id="authPicker" provider={{authProvider}}>
+    </auth-provider-picker>
+    
     <app-location route="{{route}}" url-space-regex="^[[rootPath]]"></app-location>
     <app-route
         route="{{route}}"
         pattern="[[rootPath]]:page"
         data="{{routeData}}"
         tail="{{subroute}}"></app-route>
+
+    <payment-request
+      id="payment"
+      label="Total"
+      currency="BRL"
+      >
+      <payment-method supported='["basic-card"]' data='{
+          "supportedNetwork": ["amex", "mastercard", "visa" ],
+          "supportedTypes": ["debit", "credit"]
+        }'></payment-method>
+      <payment-item class="item" label="[[cartItem]]" currency="BRL" value="[[valorTotal]]"></payment-item>
+    </payment-request>
 
     <app-drawer-layout fullbleed narrow="{{narrow}}">
       <!-- Drawer content -->
@@ -116,6 +156,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <app-toolbar>
             <paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
             <div main-title>Superlogica Café</div>
+            <div hidden$="[[user]]">
+              <paper-icon-button icon="my-icons:account-circle" on-tap="getAuth"></paper-icon-button>                          
+            </div>
+            <template is="dom-if" if={{user}}>
+              <div class="avatar" hidden$="[[!user.photoURL]]" on-tap="signOut"><img class="avatar" src="[[user.photoURL]]"></div>
+            </template>
           </app-toolbar>
         </app-header>
 
@@ -144,6 +190,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             reflectToAttribute: true,
             observer: '_pageChanged',
           },
+          cartItem: {
+
+          },
+          valorTotal: {
+
+          },
           routeData: Object,
           subroute: String,
           // This shouldn't be neccessary, but the Analyzer isn't picking up
@@ -155,9 +207,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       static get observers() {
         return [
           '_routePageChanged(routeData.page)',
+          '_providerChanged(authProvider)'
         ];
       }
+      
+      getAuth() {
+        if (!this.user && !this.signedIn) {
+          this.$.authPicker.show();
+        }
+      }
+      
+      handleError(e) {
+        console.log(e)
+      }
 
+      signOut() {
+        this.$.auth.signOut();
+      }
+
+      _providerChanged(provider) {
+        console.log('provider changed', provider)
+        if (provider) {
+          console.log('sign in')
+          this.$.auth.signInWithRedirect(this.provider); 
+        }
+      }
+      
       _routePageChanged(page) {
         // If no page was found in the route data, page will be an empty string.
         // Deault to 'view1' in that case.

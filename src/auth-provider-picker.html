@@ -1,0 +1,106 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/neon-animation/web-animations.html">
+<link rel="import" href="../bower_components/neon-animation/animations/scale-up-animation.html">
+<link rel="import" href="../bower_components/neon-animation/animations/fade-out-animation.html">
+
+<paper-dialog entry-animation="scale-up-animation"
+              exit-animation="fade-out-animation">
+
+<dom-module id="auth-provider-picker">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      paper-button {
+        background: var(--app-primary-fore);
+        float: right;
+        margin-right: 10px;
+      }
+
+      #picker {
+        min-width:250px;
+      }
+
+      .icon {
+        --iron-icon-height: 24px;
+        --iron-icon-width: 24px;
+      }
+    </style>
+    
+    <paper-dialog id="picker" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+      <h2>Escolha um método de login</h2>
+      <paper-dialog-scrollable>
+        
+        <iron-selector id="selector" attr-for-selected="value" >        
+          <template is="dom-repeat" items="[[providers]]">
+            <paper-item value="[[item.value]]">
+              
+              <iron-icon icon="my-icons:[[item.icon]]"></iron-icon>
+              
+              <span style="margin-left: 10px">[[item.nome]]</span>
+            </paper-item>
+          </template>          
+        </iron-selector>
+        
+        <paper-button raised dialog-confirm on-tap="setProvider">OK</paper-button>
+        
+        </paper-dialog-scrollable>
+            
+    </paper-dialog>
+    
+    
+</template>
+
+  <script>
+    /**
+     * `auth-provider-picker`
+     * Dialog picker for firebase-auth provider
+     *
+     * @customElement
+     * @polymer
+     * @demo demo/index.html
+     */
+    class AuthProviderPicker extends Polymer.Element {
+      static get is() { return 'auth-provider-picker'; }
+      static get properties() {
+        return {
+          provider: {
+            type:String,
+            value: '',
+            notify: true,
+            reflectToAttribute: true
+          }
+          }
+        };
+      constructor() {
+        super();
+        this.providers = [
+          {nome: "Google", icon:"google-plus-square", value: "google"},
+          {nome: "Facebook", icon:"facebook-square", value: "facebook"},
+          {nome: "Telephone", icon:"local-phone", value: "smartphone"}          
+        ];
+      }
+
+      show() {
+        this.$.picker.selected = '';
+        this.$.picker.open();
+      }
+
+      setProvider() {
+        console.log(this.$.selector.selected);
+        this.provider = this.$.selector.selected;
+      }
+    }
+
+    window.customElements.define(AuthProviderPicker.is, AuthProviderPicker);
+  </script>
+</dom-module>
