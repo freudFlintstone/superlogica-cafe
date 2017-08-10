@@ -24,9 +24,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="../bower_components/polymerfire/firebase-app.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-auth.html">
-<script src="https://storage.googleapis.com/prshim/v1/payment-shim.js"></script>
-<link rel="import" href="../bower_components/payment-request/payment-request-all.html">
-
 
 <link rel="import" href="auth-provider-picker.html">
 <link rel="lazy-import" href="my-view1.html">
@@ -120,18 +117,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         data="{{routeData}}"
         tail="{{subroute}}"></app-route>
 
-    <payment-request
-      id="payment"
-      label="Total"
-      currency="BRL"
-      >
-      <payment-method supported='["basic-card"]' data='{
-          "supportedNetwork": ["amex", "mastercard", "visa" ],
-          "supportedTypes": ["debit", "credit"]
-        }'></payment-method>
-      <payment-item class="item" label="[[cartItem]]" currency="BRL" value="[[valorTotal]]"></payment-item>
-    </payment-request>
-
     <app-drawer-layout fullbleed narrow="{{narrow}}">
       <!-- Drawer content -->
       <app-drawer id="drawer" slot="drawer" swipe-open="[[narrow]]">
@@ -189,12 +174,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             type: String,
             reflectToAttribute: true,
             observer: '_pageChanged',
-          },
-          cartItem: {
-
-          },
-          valorTotal: {
-
           },
           routeData: Object,
           subroute: String,
