@@ -27,9 +27,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     class PaymentRequest extends Polymer.Element {
       static get is() { return 'payment-request'; }
 
-
       static get properties() {
-        return {};
+        return {
+          request: Object,
+          notify: true
+        };
       }
 
       
@@ -47,21 +49,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             label: 'Total',  
             amount:{  
               currency: 'BRL',  
-              value: 0  
+              value: 1  
             }  
           }
         };
         this.options = {};
+        
       }
 
       newRequest() {
-        return new PaymentRequest(
+        this.request = new PaymentRequest(
           this.supportedPaymentMethods,
           this.paymentDetails,
           this.options
         );
       }
 
+      pay() {
+        this.request.show()
+        .then( console.log("ok"))
+        .catch( console.log("not ok"))
+      }
     }
     window.customElements.define(PaymentRequest.is, PaymentRequest);
   </script>

@@ -5,7 +5,9 @@
     "src/my-view1.html",
     "src/my-view2.html",
     "src/my-view3.html",
-    "src/my-view404.html"
+    "src/my-view404.html",
+    "src/payment-request.html",
+    "src/auth-provider-picker.html" 
   ],
   "sources": [
     "src/**/*",
@@ -20,12 +22,6 @@
     "rules": ["polymer-2"]
   },
   "builds": [
-    {
-      "preset": "es5-bundled"
-    },
-    {
-      "preset": "es6-bundled"
-    },
     {
       "preset": "es6-unbundled"
     }

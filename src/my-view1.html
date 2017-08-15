@@ -14,7 +14,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="shared-styles.html">
 
 
-<link rel="import" href="payment-request.html">
+<!-- <link rel="import" href="payment-request.html"> -->
 
 
 <dom-module id="my-view1">
@@ -58,7 +58,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </style>
 
     <payment-request id="payment"></payment-request>
-
+    
+    <paper-card heading="Pagamento" image="" elevation="2" animated-shadow="false">
+      <div class="card-content">
+        id: [[request.id]]<br>
+        método:[[response.method]]<br>
+        Número: [[response.details.cardNumber]]<br>
+        Nome: [[response.details.cardholderName]]<br>
+        CVC: [[response.details.cardSecurityCode]]<br>
+        Expira: [[response.details.expiryMonth]]/[[response.details.expiryYear]]
+        
+      </div>
+      <div class="card-actions">
+        
+      </div>
+    </paper-card>
+    
     <template is="dom-repeat" items="[[opcoes]]">
 
       <paper-card heading="" image="[[item.img]]" elevation="2" animated-shadow="true">
@@ -67,7 +82,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <p>R$ [[item.preco]] cada unidade</p>
         </div>
         <div class="card-actions"> 
-          <paper-button raised codigo="[[item.id]]" on-tap="pay">Pagar</paper-button>
+          <!-- <paper-button raised codigo="[[item.id]]" on-tap="newRequest">+</paper-button>   -->
+          <paper-button raised item="[[item.nome]]" value="[[item.preco]]" on-tap="newRequest">Pagar</paper-button>
         </div>
       </paper-card>
     </template>
@@ -81,6 +97,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       static get properties() {
         return {
+          response: {
+            type: Object,
+            notify: true
+          },
+          request: Object,
           cartItem: {
           type: String,
           value: '',
@@ -95,7 +116,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
       constructor() {
         super();
-        this.request = null;
         this.opcoes = [
           {id: '1', nome: 'Pão de queijo', img: '../images/pao-de-queijo.jpg', preco: '1.80'},
           {id: '2', nome: 'Salgado', img: '../images/coxinha.jpg', preco: '3.80'},
@@ -107,10 +127,59 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         ]; 
       }
 
-      pay() {
-        this.request = this.$.payment.newRequest();
+      newRequest(e) {
+        console.log(e.path[0].value);
+        var valor = e.path[0].value;
+        var nome = e.path[0].item;
+        const pjbankPaymentMethod = {  
+          supportedMethods: ['https://pjbank.com.br'],  
+          data: {  
+            merchantName: 'PJBank',  
+            merchantId: '00000000000000000001',  
+            environment: 'TEST',  
+            allowedCardNetworks: ['AMEX', 'DISCOVER', 'MASTERCARD', 'VISA'],  
+            paymentMethodTokenizationParameters: {  
+              tokenizationType: 'NETWORK_TOKEN',  
+              parameters: {  
+                'gateway': 'global',  
+                'global:publishableKey': 'xx_demo_xxxxxxxxxxxxxxxxxxxxxxxx',  
+                'global:version': '2016-07-06',  
+              },  
+            },  
+          },  
+        };
+        let supportedPaymentMethods = [
+          {supportedMethods: ['basic-card', 'http://pjbank.com.br'],
+           data: {
+            supportedNetworks: ['visa', 'mastercard', 'amex'],
+            }
+          }
+        ];
+        let paymentDetails = {
+          total: {
+            label: nome,  
+            amount:{  
+              currency: 'BRL',  
+              value: valor  
+            }  
+          }
+        };
+        let options = {requestPayerEmail: true};
+        this.request = new PaymentRequest(supportedPaymentMethods,paymentDetails,options);
         console.log(this.request);
+        this.request.show()
+        .then( (p) =>{
+          console.log(p.details, p.methodName);
+          this.response = {'details': p.details, 'method':p.methodName};
+          p.complete('success');
+        })
+        .catch( (error)=>{console.log(error)});
+
       }
+
+      // pay() {
+      //   this.request.show();
+      // }
 
     }
     
