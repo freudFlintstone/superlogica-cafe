@@ -106,9 +106,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </firebase-app>
     <firebase-auth id="auth" user="{{user}}" provider="{{authProvider}}" signedIn="[[signedIn]]" on-error="handleError">
     </firebase-auth>
-
+    
+    <!-- 
     <auth-provider-picker id="authPicker" provider={{authProvider}}>
-    </auth-provider-picker>
+    </auth-provider-picker> -->
     
     <app-location route="{{route}}" url-space-regex="^[[rootPath]]"></app-location>
     <app-route
@@ -142,7 +143,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
             <div main-title>Superlogica Café</div>
             <div hidden$="[[user]]">
-              <paper-icon-button icon="my-icons:account-circle" on-tap="getAuth"></paper-icon-button>                          
+              <!-- <paper-icon-button icon="my-icons:account-circle" on-tap="getAuth"></paper-icon-button>                           -->
+              <paper-icon-button icon="my-icons:account-circle" on-tap="signIn"></paper-icon-button>                          
             </div>
             <template is="dom-if" if={{user}}>
               <div class="avatar" hidden$="[[!user.photoURL]]" on-tap="signOut"><img class="avatar" src="[[user.photoURL]]"></div>
@@ -175,6 +177,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             reflectToAttribute: true,
             observer: '_pageChanged',
           },
+          authProvider: {
+            type: String,
+            value: "google"
+          },
           routeData: Object,
           subroute: String,
           // This shouldn't be neccessary, but the Analyzer isn't picking up
@@ -185,9 +191,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       static get observers() {
         return [
-          '_routePageChanged(routeData.page)',
-          '_providerChanged(authProvider)'
+          '_routePageChanged(routeData.page)'
+          // '_providerChanged(authProvider)'
         ];
+      }
+
+      ready() {
+        super.ready();
+        this.provider =  new firebase.auth.GoogleAuthProvider();
+        this.provider.setCustomParameters({
+          hd: "superlogica.com"
+        });
       }
       
       getAuth() {
@@ -198,6 +212,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       
       handleError(e) {
         console.log(e)
+      }
+
+      signIn() {
+        this.$.auth.signInWithRedirect(this.provider);
       }
 
       signOut() {
