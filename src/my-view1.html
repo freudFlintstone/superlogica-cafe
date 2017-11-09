@@ -11,6 +11,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-document.html">
+
 <link rel="import" href="shared-styles.html">
 
 
@@ -58,12 +60,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </style>
 
     <payment-request id="payment"></payment-request>
+    <firebase-document
+      id="entries"
+      path="/users/[[user.uid]]/pedidos"
+      data="{{dados}}">
+    </firebase-document>
     
-    <paper-card heading="Pagamento" image="" elevation="2" animated-shadow="false">
+    <!-- <paper-card heading="Pagamento" image="" elevation="2" animated-shadow="false">
       <div class="card-content">
         id: [[request.id]]<br>
-        método:[[response.method]]<br>
-        Número: [[response.details.cardNumber]]<br>
+        mÃ©todo:[[response.method]]<br>
+        NÃºmero: [[response.details.cardNumber]]<br>
         Nome: [[response.details.cardholderName]]<br>
         CVC: [[response.details.cardSecurityCode]]<br>
         Expira: [[response.details.expiryMonth]]/[[response.details.expiryYear]]
@@ -72,7 +79,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <div class="card-actions">
         
       </div>
-    </paper-card>
+    </paper-card> -->
     
     <template is="dom-repeat" items="[[opcoes]]">
 
@@ -83,7 +90,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </div>
         <div class="card-actions"> 
           <!-- <paper-button raised codigo="[[item.id]]" on-tap="newRequest">+</paper-button>   -->
-          <paper-button raised item="[[item.nome]]" value="[[item.preco]]" on-tap="newRequest">Pagar</paper-button>
+          <!-- <paper-button raised item="[[item.nome]]" value="[[item.preco]]" on-tap="newRequest">Pagar</paper-button> -->
+          <paper-button raised item="[[item.nome]]" key="[[item.id]]"value="[[item.preco]]" on-tap="marcar">Pagar</paper-button>
         </div>
       </paper-card>
     </template>
@@ -125,6 +133,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           {id: '6', nome: 'Cerveja', img: '../images/cerveja.jpg', preco: '3.00'}                           
                                             
         ]; 
+      }
+
+      marcar(e) {
+        let nome = e.path[0].item;
+        let id = e.path[0].id; 
+        let valor = e.path[0].value;
+        this.dados = {timestamp: Data.now(), item: id};
       }
 
       newRequest(e) {
