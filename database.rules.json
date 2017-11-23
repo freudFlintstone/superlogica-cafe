@@ -1,6 +1,10 @@
 {
   "rules": {
+    "menu" :{
+      ".read": true,
+    	".write": false
+    },
     ".read": "auth != null",
-    ".write": "auth != null"
+    ".write": false
   }
 }
