@@ -20,12 +20,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+
+<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+
 <link rel="import" href="my-icons.html">
 
 <link rel="import" href="../bower_components/polymerfire/firebase-app.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-auth.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-query.html">
 
-<link rel="import" href="auth-provider-picker.html">
 <link rel="lazy-import" href="my-view1.html">
 <link rel="lazy-import" href="my-view2.html">
 <link rel="lazy-import" href="my-view3.html">
@@ -43,12 +46,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         display: block;
       }
       #logo {
-        max-height: 72px;
+        /* max-height: 72px; */
         text-align: center;
         margin: auto;
       }
       #logo img {
-        max-height: 72px;
+        /* max-height: 72px; */
         height: 80%;
         width: 80%;
         margin: auto;
@@ -66,6 +69,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       app-header paper-icon-button {
         --paper-icon-button-ink-color: white;
+      }
+
+      paper-tabs {
+        color: white;
+        margin: auto;
+        width: 90%;
+      }
+      app-toolbar.navbar {
+        background: var(--app-primary-color);
+        position: fixed;
+        bottom: 0;
+        width: 100vw;
+        padding: 0;
       }
 
       .avatar {
@@ -106,10 +122,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </firebase-app>
     <firebase-auth id="auth" user="{{user}}" provider="{{authProvider}}" signedIn="[[signedIn]]" on-error="handleError">
     </firebase-auth>
-    
-    <!-- 
-    <auth-provider-picker id="authPicker" provider={{authProvider}}>
-    </auth-provider-picker> -->
+
+    <firebase-query
+      id="menu"
+      path="/menu"
+      data="{{menuData}}">
+    </firebase-query>
     
     <app-location route="{{route}}" url-space-regex="^[[rootPath]]"></app-location>
     <app-route
@@ -118,9 +136,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         data="{{routeData}}"
         tail="{{subroute}}"></app-route>
 
-    <app-drawer-layout fullbleed narrow="{{narrow}}">
+    <!-- <app-drawer-layout fullbleed narrow="{{narrow}}"> -->
       <!-- Drawer content -->
-      <app-drawer id="drawer" slot="drawer" swipe-open="[[narrow]]">
+      <!-- <app-drawer id="drawer" slot="drawer" swipe-open="[[narrow]]">
         <app-toolbar><div id="logo"><img src="../images/manifest/icon-96x96.png" alt=""></div></app-toolbar>
         <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
           <a name="view1" href="[[rootPath]]view1">
@@ -133,21 +151,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <iron-icon class="menu" icon="my-icons:help-outline"></iron-icon>                        
           </a>
         </iron-selector>
-      </app-drawer>
+      </app-drawer> -->
 
       <!-- Main content -->
-      <app-header-layout has-scrolling-region>
+      <app-header-layout has-scrolling-region fullbleed>
 
         <app-header slot="header" condenses reveals effects="waterfall">
           <app-toolbar>
-            <paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button>
+            <div id="logo"><img src="../images/manifest/icon-96x96.png" alt=""></div>
+            <!-- <paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button> -->
             <div main-title>Superlogica Café</div>
             <div hidden$="[[user]]">
-              <!-- <paper-icon-button icon="my-icons:account-circle" on-tap="getAuth"></paper-icon-button>                           -->
-              <paper-icon-button icon="my-icons:account-circle" on-tap="signIn"></paper-icon-button>                          
+              <paper-icon-button icon="my-icons:account-circle" on-click="signIn"></paper-icon-button>                          
             </div>
             <template is="dom-if" if={{user}}>
-              <div class="avatar" hidden$="[[!user.photoURL]]" on-tap="signOut"><img class="avatar" src="[[user.photoURL]]"></div>
+              <div class="avatar" hidden$="[[!user.photoURL]]" on-click="signOut"><img class="avatar" src="[[user.photoURL]]"></div>
             </template>
           </app-toolbar>
         </app-header>
@@ -157,13 +175,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             attr-for-selected="name"
             fallback-selection="view404"
             role="main">
-          <my-view1 id="v1" name="view1" user="[[user]]"></my-view1>
-          <my-view2 name="view2"></my-view2>
+          <my-view1 id="v1" name="view1" user="[[user]]" opcoes="[[menuData]]"></my-view1>
+          <my-view2 id="v2" name="view2" user="[[user]]" opcoes="[[menuData]]"></my-view2>
           <my-view3 name="view3"></my-view3>
           <my-view404 name="view404"></my-view404>
         </iron-pages>
+
+        <app-toolbar class="navbar">
+            <paper-tabs selected="{{page}}" attr-for-selected="name">
+              <paper-tab name="view1" href="[[rootPath]]view1">
+                  <iron-icon class="menu" icon="my-icons:kitchen"></iron-icon>
+              </paper-tab>
+              <paper-tab name="view2" href="[[rootPath]]view2" >
+                <iron-icon class="menu" icon="my-icons:attach-money"></iron-icon>            
+              </paper-tab>
+              <paper-tab name="view3" href="[[rootPath]]view3" >
+                <iron-icon class="menu" icon="my-icons:help-outline"></iron-icon>            
+              </paper-tab>
+            </paper-tabs>
+          </app-toolbar>
       </app-header-layout>
-    </app-drawer-layout>
+    <!-- </app-drawer-layout> -->
   </template>
 
   <script>
@@ -204,11 +236,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         });
       }
       
-      getAuth() {
-        if (!this.user && !this.signedIn) {
-          this.$.authPicker.show();
-        }
-      }
+      // getAuth() {
+      //   if (!this.user && !this.signedIn) {
+      //     this.$.authPicker.show();
+      //   }
+      // }
       
       handleError(e) {
         console.log(e)
@@ -236,9 +268,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.page = page || 'view1';
 
         // Close a non-persistent drawer when the page & route are changed.
-        if (!this.$.drawer.persistent) {
-          this.$.drawer.close();
-        }
+        // if (!this.$.drawer.persistent) {
+        //   this.$.drawer.close();
+        // }
       }
 
       _pageChanged(page) {

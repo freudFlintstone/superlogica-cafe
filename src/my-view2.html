@@ -9,6 +9,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
+
 <link rel="import" href="shared-styles.html">
 
 <dom-module id="my-view2">
@@ -19,19 +22,55 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         padding: 10px;
       }
+
+      paper-item-body {
+        width: 100%;
+      }
+      h3.preco {
+        display: inline-table;
+      }
+
     </style>
 
+    <firebase-query
+      id="menu"
+      path="/users/[[user.uid]]/pedidos"
+      data="{{pedidos}}">
+    </firebase-query>
+    
     <div class="card">
-      <div class="circle">2</div>
-      <h1>View Two</h1>
-      <p>Ea duis bonorum nec, falli paulo aliquid ei eum.</p>
-      <p>Id nam odio natum malorum, tibique copiosae expetenda mel ea.Detracto suavitate repudiandae no eum. Id adhuc minim soluta nam.Id nam odio natum malorum, tibique copiosae expetenda mel ea.</p>
+      <h1>Itens pendentes</h1>
+      <div role="listbox">
+        <template is="dom-repeat" items="[[pedidos]]">
+          <paper-icon-item name="[[item.$key]]">
+            <iron-icon icon="my-icons:attach-money" slot="item-icon"></iron-icon>
+            <paper-item-body two-line>
+              <div><h2>[[_getItem(item.item)]]</h2></div>
+              <div>[[_getDataCompra(item.$key)]]</div>
+            </paper-item-body>
+              <h3 class="preco">
+                R$ [[item.valor]]
+              </h3>
+          </paper-icon-item>  
+        </template>
+      </div>
     </div>
   </template>
 
   <script>
     class MyView2 extends Polymer.Element {
       static get is() { return 'my-view2'; }
+
+      _getItem(id) {
+        return this.opcoes[id].nome;
+      }
+
+      _getDataCompra(t) {
+        let data = Date(t);
+        let arrayData = data.split(' '); 
+        let novaData = arrayData.splice(0, 4);
+        return novaData.join(' ');
+      }
     }
 
     window.customElements.define(MyView2.is, MyView2);

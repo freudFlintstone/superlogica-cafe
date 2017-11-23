@@ -23,9 +23,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <template>
     <style include="shared-styles">
       :host {
-        display: block;
-
+        display: inline-table;
+        align-self: auto;
         padding: 10px;
+        padding-bottom: 75px;
+        text-align: center;
       }
 
       paper-card {
@@ -60,11 +62,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </style>
 
     <payment-request id="payment"></payment-request>
-    <firebase-document
-      id="entries"
-      path="/users/[[user.uid]]/pedidos"
-      data="{{dados}}">
-    </firebase-document>
+    <firebase-document id="entries" data="{{pedido}}"></firebase-document>
     
     <!-- <paper-card heading="Pagamento" image="" elevation="2" animated-shadow="false">
       <div class="card-content">
@@ -81,17 +79,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
     </paper-card> -->
     
+
+    <template is="dom-if" if=[[!user]]>
+        <div class="card">
+          <div class="circle">?</div>
+          <h1>1. Entre com seu email @superlogica.</h1>
+          <h1>2. Seja feliz</h1>          
+        </div>
+    </template>
+
     <template is="dom-repeat" items="[[opcoes]]">
 
       <paper-card heading="" image="[[item.img]]" elevation="2" animated-shadow="true">
         <div class="card-content">
-          <h4>[[item.nome]]</h4>
-          <p>R$ [[item.preco]] cada unidade</p>
+          <h3>[[item.nome]]</h3>
+          <h4>R$ [[item.preco]]</h4>
         </div>
         <div class="card-actions"> 
           <!-- <paper-button raised codigo="[[item.id]]" on-tap="newRequest">+</paper-button>   -->
           <!-- <paper-button raised item="[[item.nome]]" value="[[item.preco]]" on-tap="newRequest">Pagar</paper-button> -->
-          <paper-button raised item="[[item.nome]]" key="[[item.id]]"value="[[item.preco]]" on-tap="marcar">Pagar</paper-button>
+          
+          <template is="dom-if" if=[[user]]>
+            <paper-button raised item="[[item.nome]]" key="[[item.id]]"value="[[item.preco]]" on-tap="marcar">Marcar</paper-button>
+          </template>
         </div>
       </paper-card>
     </template>
@@ -111,35 +121,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           },
           request: Object,
           cartItem: {
-          type: String,
-          value: '',
-          notify: true
+            type: String,
+            value: '',
+            notify: true
           },
           valorTotal: {
-          type: String,
-          value: '',
-          notify: true
+            type: String,
+            value: '',
+            notify: true
           },          
         };
       }
-      constructor() {
-        super();
-        this.opcoes = [
-          {id: '1', nome: 'Pão de queijo', img: '../images/pao-de-queijo.jpg', preco: '1.80'},
-          {id: '2', nome: 'Salgado', img: '../images/coxinha.jpg', preco: '3.80'},
-          {id: '3', nome: 'Doce', img: '../images/doce.jpg', preco: '2.50'},          
-          {id: '4', nome: 'Cone', img: '../images/cone.jpg', preco: '4.00'},
-          {id: '5', nome: 'Refrigerante ou Suco', img: '../images/refri.jpg', preco: '3.00'},                         
-          {id: '6', nome: 'Cerveja', img: '../images/cerveja.jpg', preco: '3.00'}                           
+      // constructor() {
+      //   super();
+      //   this.opcoes = [
+      //     {id: '1', nome: 'Pão de queijo', img: '../images/pao-de-queijo.jpg', preco: '1.80'},
+      //     {id: '2', nome: 'Salgado', img: '../images/coxinha.jpg', preco: '3.80'},
+      //     {id: '3', nome: 'Doce', img: '../images/doce.jpg', preco: '2.50'},          
+      //     {id: '4', nome: 'Cone', img: '../images/cone.jpg', preco: '4.00'},
+      //     {id: '5', nome: 'Refrigerante ou Suco', img: '../images/refri.jpg', preco: '3.00'},                         
+      //     {id: '6', nome: 'Cerveja', img: '../images/cerveja.jpg', preco: '3.00'}                           
                                             
-        ]; 
-      }
+      //   ]; 
+      // }
 
       marcar(e) {
-        let nome = e.path[0].item;
-        let id = e.path[0].id; 
-        let valor = e.path[0].value;
-        this.dados = {timestamp: Data.now(), item: id};
+        let target = e.model.item;
+        let nome = target.item;
+        let id = target.id; 
+        let preco = target.preco;
+        let ts = Date.now();
+        this.set('pedido', {item: id, valor: preco});
+        this.$.entries.saveValue('/users/' + this.user.uid + '/pedidos', ts);
       }
 
       newRequest(e) {
@@ -147,7 +160,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         var valor = e.path[0].value;
         var nome = e.path[0].item;
         const pjbankPaymentMethod = {  
-          supportedMethods: ['https://pjbank.com.br'],  
+          supportedMethods: ['https://api.pjbank.com.br'],  
           data: {  
             merchantName: 'PJBank',  
             merchantId: '00000000000000000001',  

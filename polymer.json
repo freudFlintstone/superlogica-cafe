@@ -6,8 +6,7 @@
     "src/my-view2.html",
     "src/my-view3.html",
     "src/my-view404.html",
-    "src/payment-request.html",
-    "src/auth-provider-picker.html" 
+    "src/payment-request.html"
   ],
   "sources": [
     "src/**/*",
