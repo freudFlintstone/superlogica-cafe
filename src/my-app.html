@@ -85,6 +85,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       .avatar {
+        padding: 2px;
         margin-top: 4px;
         width: 42px;
         border-radius: 50%;
@@ -136,34 +137,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         data="{{routeData}}"
         tail="{{subroute}}"></app-route>
 
-    <!-- <app-drawer-layout fullbleed narrow="{{narrow}}"> -->
-      <!-- Drawer content -->
-      <!-- <app-drawer id="drawer" slot="drawer" swipe-open="[[narrow]]">
-        <app-toolbar><div id="logo"><img src="../images/manifest/icon-96x96.png" alt=""></div></app-toolbar>
-        <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
-          <a name="view1" href="[[rootPath]]view1">
-            <iron-icon class="menu" icon="my-icons:kitchen"></iron-icon>
-          </a>
-          <a name="view2" href="[[rootPath]]view2">
-            <iron-icon class="menu" icon="my-icons:attach-money"></iron-icon>            
-          </a>
-          <a name="view3" href="[[rootPath]]view3">
-            <iron-icon class="menu" icon="my-icons:help-outline"></iron-icon>                        
-          </a>
-        </iron-selector>
-      </app-drawer> -->
-
       <!-- Main content -->
       <app-header-layout has-scrolling-region fullbleed>
 
         <app-header slot="header" condenses reveals effects="waterfall">
           <app-toolbar>
             <div id="logo"><img src="../images/manifest/icon-96x96.png" alt=""></div>
-            <!-- <paper-icon-button icon="my-icons:menu" drawer-toggle></paper-icon-button> -->
             <div main-title>Superlogica Café</div>
-            <div hidden$="[[user]]">
-              <paper-icon-button icon="my-icons:account-circle" on-click="signIn"></paper-icon-button>                          
-            </div>
+            <template is="dom-if" if={{!user}}>
+            <div><paper-icon-button class="avatar" icon="my-icons:account-circle" on-click="signIn"></paper-icon-button></div>
+          </template>
             <template is="dom-if" if={{user}}>
               <div class="avatar" hidden$="[[!user.photoURL]]" on-click="signOut"><img class="avatar" src="[[user.photoURL]]"></div>
             </template>
@@ -195,7 +178,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </paper-tabs>
           </app-toolbar>
       </app-header-layout>
-    <!-- </app-drawer-layout> -->
   </template>
 
   <script>
@@ -224,7 +206,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       static get observers() {
         return [
           '_routePageChanged(routeData.page)'
-          // '_providerChanged(authProvider)'
         ];
       }
 
@@ -235,12 +216,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           hd: "superlogica.com"
         });
       }
-      
-      // getAuth() {
-      //   if (!this.user && !this.signedIn) {
-      //     this.$.authPicker.show();
-      //   }
-      // }
       
       handleError(e) {
         console.log(e)
@@ -254,23 +229,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.auth.signOut();
       }
 
-      _providerChanged(provider) {
-        console.log('provider changed', provider)
-        if (provider) {
-          console.log('sign in')
-          this.$.auth.signInWithRedirect(this.provider); 
-        }
-      }
-      
       _routePageChanged(page) {
         // If no page was found in the route data, page will be an empty string.
-        // Deault to 'view1' in that case.
+        // Default to 'view1' in that case.
         this.page = page || 'view1';
-
-        // Close a non-persistent drawer when the page & route are changed.
-        // if (!this.$.drawer.persistent) {
-        //   this.$.drawer.close();
-        // }
       }
 
       _pageChanged(page) {

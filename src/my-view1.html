@@ -30,6 +30,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         text-align: center;
       }
 
+      .card {
+        text-align: left;
+      }
+
+      .circle {
+        margin-right: 30px;
+      }
+
       paper-card {
         width: 300px;
         margin: 25px;
@@ -61,31 +69,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     </style>
 
-    <payment-request id="payment"></payment-request>
     <firebase-document id="entries" data="{{pedido}}"></firebase-document>
     
-    <!-- <paper-card heading="Pagamento" image="" elevation="2" animated-shadow="false">
-      <div class="card-content">
-        id: [[request.id]]<br>
-        mÃ©todo:[[response.method]]<br>
-        NÃºmero: [[response.details.cardNumber]]<br>
-        Nome: [[response.details.cardholderName]]<br>
-        CVC: [[response.details.cardSecurityCode]]<br>
-        Expira: [[response.details.expiryMonth]]/[[response.details.expiryYear]]
-        
-      </div>
-      <div class="card-actions">
-        
-      </div>
-    </paper-card> -->
-    
-
     <template is="dom-if" if=[[!user]]>
-        <div class="card">
+      <div class="card">
+        <div style="display: inline-flex">
           <div class="circle">?</div>
-          <h1>1. Entre com seu email @superlogica.</h1>
-          <h1>2. Seja feliz</h1>          
+          <h3>Como usar</h3>
         </div>
+        <ol>
+          <li> Entre com seu email @superlogica.com (no alto, à direita)</li>
+          <li> Marque sua gordice</li>
+          <li> Consulte seu consumo (embaixo, segunda aba)</li>
+          <li> Pague a Vilma quando puder!</li>
+        </ol>
+      </div>
     </template>
 
     <template is="dom-repeat" items="[[opcoes]]">
@@ -96,8 +94,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <h4>R$ [[item.preco]]</h4>
         </div>
         <div class="card-actions"> 
-          <!-- <paper-button raised codigo="[[item.id]]" on-tap="newRequest">+</paper-button>   -->
-          <!-- <paper-button raised item="[[item.nome]]" value="[[item.preco]]" on-tap="newRequest">Pagar</paper-button> -->
           
           <template is="dom-if" if=[[user]]>
             <paper-button raised item="[[item.nome]]" key="[[item.id]]"value="[[item.preco]]" on-tap="marcar">Marcar</paper-button>
@@ -132,18 +128,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           },          
         };
       }
-      // constructor() {
-      //   super();
-      //   this.opcoes = [
-      //     {id: '1', nome: 'Pão de queijo', img: '../images/pao-de-queijo.jpg', preco: '1.80'},
-      //     {id: '2', nome: 'Salgado', img: '../images/coxinha.jpg', preco: '3.80'},
-      //     {id: '3', nome: 'Doce', img: '../images/doce.jpg', preco: '2.50'},          
-      //     {id: '4', nome: 'Cone', img: '../images/cone.jpg', preco: '4.00'},
-      //     {id: '5', nome: 'Refrigerante ou Suco', img: '../images/refri.jpg', preco: '3.00'},                         
-      //     {id: '6', nome: 'Cerveja', img: '../images/cerveja.jpg', preco: '3.00'}                           
-                                            
-      //   ]; 
-      // }
 
       marcar(e) {
         let target = e.model.item;
@@ -154,60 +138,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.set('pedido', {item: id, valor: preco});
         this.$.entries.saveValue('/users/' + this.user.uid + '/pedidos', ts);
       }
-
-      newRequest(e) {
-        console.log(e.path[0].value);
-        var valor = e.path[0].value;
-        var nome = e.path[0].item;
-        const pjbankPaymentMethod = {  
-          supportedMethods: ['https://api.pjbank.com.br'],  
-          data: {  
-            merchantName: 'PJBank',  
-            merchantId: '00000000000000000001',  
-            environment: 'TEST',  
-            allowedCardNetworks: ['AMEX', 'DISCOVER', 'MASTERCARD', 'VISA'],  
-            paymentMethodTokenizationParameters: {  
-              tokenizationType: 'NETWORK_TOKEN',  
-              parameters: {  
-                'gateway': 'global',  
-                'global:publishableKey': 'xx_demo_xxxxxxxxxxxxxxxxxxxxxxxx',  
-                'global:version': '2016-07-06',  
-              },  
-            },  
-          },  
-        };
-        let supportedPaymentMethods = [
-          {supportedMethods: ['basic-card', 'http://pjbank.com.br'],
-           data: {
-            supportedNetworks: ['visa', 'mastercard', 'amex'],
-            }
-          }
-        ];
-        let paymentDetails = {
-          total: {
-            label: nome,  
-            amount:{  
-              currency: 'BRL',  
-              value: valor  
-            }  
-          }
-        };
-        let options = {requestPayerEmail: true};
-        this.request = new PaymentRequest(supportedPaymentMethods,paymentDetails,options);
-        console.log(this.request);
-        this.request.show()
-        .then( (p) =>{
-          console.log(p.details, p.methodName);
-          this.response = {'details': p.details, 'method':p.methodName};
-          p.complete('success');
-        })
-        .catch( (error)=>{console.log(error)});
-
-      }
-
-      // pay() {
-      //   this.request.show();
-      // }
 
     }
     
