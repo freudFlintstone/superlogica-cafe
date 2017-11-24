@@ -69,7 +69,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
     </style>
 
-    <firebase-document id="entries" data="{{pedido}}"></firebase-document>
+    <firebase-document id="entries" 
+      path="/users/[[user.uid]]/pedidos/[[novopedido]]"
+      data="{{pedido}}">
+    </firebase-document>
     
     <template is="dom-if" if=[[!user]]>
       <div class="card">
@@ -96,7 +99,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div class="card-actions"> 
           
           <template is="dom-if" if=[[user]]>
-            <paper-button raised item="[[item.nome]]" key="[[item.id]]"value="[[item.preco]]" on-tap="marcar">Marcar</paper-button>
+            <paper-button raised item="[[item.nome]]" key="[[item.id]]"value="[[item.preco]]" on-click="marcar">Marcar</paper-button>
           </template>
         </div>
       </paper-card>
@@ -130,13 +133,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       marcar(e) {
+        console.log(3);
         let target = e.model.item;
         let nome = target.item;
         let id = target.id; 
         let preco = target.preco;
         let ts = Date.now();
+        this.set('novopedido', ts);
         this.set('pedido', {item: id, valor: preco});
-        this.$.entries.saveValue('/users/' + this.user.uid + '/pedidos', ts);
       }
 
     }
