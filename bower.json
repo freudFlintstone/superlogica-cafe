@@ -1,5 +1,6 @@
 {
   "name": "polymer-starter-kit",
+  "version": "0.2dev",
   "authors": [
     "The Polymer Authors"
   ],
@@ -25,7 +26,9 @@
     "neon-animation": "PolymerElements/neon-animation#^2.0.1",
     "web-animations-js": "web-animations/web-animations-js#^2.3.1",
     "payment-request": "jorgecasar/payment-request#^1.0.0",
-    "paper-tabs": "PolymerElements/paper-tabs#^2.0.0"
+    "paper-tabs": "PolymerElements/paper-tabs#^2.0.0",
+    "paper-toast": "PolymerElements/paper-toast#^2.0.0",
+    "iron-collapse-button": "jifalops/iron-collapse-button#^1.0.1"
   },
   "resolutions": {
     "polymer": "^2.0.0"

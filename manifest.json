@@ -1,6 +1,7 @@
 {
-  "name": "Superlógica Café",
-  "short_name": "Superlógica Café",
+  "name": "superlógica café",
+  "short_name": "superlógica café",
+  "version": "0.2",
   "description": "PJBank Demo",
   "theme_color": "#674995",
   "background_color": "#674995",

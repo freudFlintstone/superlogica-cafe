@@ -12,6 +12,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-document.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+
 
 <link rel="import" href="shared-styles.html">
 
@@ -40,7 +42,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       paper-card {
         width: 300px;
-        margin: 25px;
+        margin: 25px 10px;
         --paper-card-header-image-text: {
           width:100%;
           line-height:1.1em;
@@ -67,6 +69,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       .preco {
         font-size: 2em;
       }
+
+      
     </style>
 
     <firebase-document id="entries" 
@@ -105,6 +109,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </paper-card>
     </template>
     
+  <paper-toast id="menuToast" text="Item adicionado!" class="fit-bottom" vertical-offset="64" vertical-align="top" always-on-top dynamic-align>
+      <iron-icon style="float:left; margin-right: 5px; margin-left:-5px;" icon="my-icons:info-outline"></iron-icon>      
+  </paper-toast>
   </template>
 
   <script>
@@ -140,7 +147,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         let preco = target.preco;
         let ts = Date.now();
         this.set('novopedido', ts);
-        this.set('pedido', {item: id, valor: preco});
+        this.set('pedido', {item: id, valor: preco, deleted: null});
+        this.$.menuToast.show();
       }
 
     }

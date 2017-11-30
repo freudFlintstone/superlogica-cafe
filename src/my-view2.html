@@ -11,6 +11,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 
 <link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-query.html">
 
 <link rel="import" href="shared-styles.html">
 
@@ -20,13 +22,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       :host {
         display: block;
 
-        padding: 10px;
+        padding:10px;
+        padding-bottom: 70px;
+      }
+
+      paper-icon-item {
+        padding-left: 0;
+        
+      }
+
+      paper-icon-item > paper-icon-button {
+        padding-left: 0;
+        
+      }
+
+      paper-icon-item.total {
+        border-bottom: 1px solid #ddd; 
       }
 
       paper-item-body {
         width: 100%;
       }
-      h3.preco {
+
+      b.destaque {
+        font-size: 1.15em;
+      }
+
+      h4.preco {
         display: inline-table;
       }
 
@@ -37,39 +59,159 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       path="/users/[[user.uid]]/pedidos"
       data="{{pedidos}}">
     </firebase-query>
+
+    <firebase-query
+      id="item"
+      data="{{itemData}}">
+    </firebase-query>
     
     <div class="card">
-      <h1>Itens pendentes</h1>
-      <div role="listbox">
-        <template is="dom-repeat" items="[[pedidos]]">
-          <paper-icon-item name="[[item.$key]]">
-            <iron-icon icon="my-icons:attach-money" slot="item-icon"></iron-icon>
-            <paper-item-body two-line>
-              <div><h2>[[_getItem(item.item)]]</h2></div>
-              <div>[[_getDataCompra(item.$key)]]</div>
+      <div class="cardheader"> 
+        <h1>Itens pendentes</h1>
+        <template is="dom-if" if=[[total]]>
+          <paper-icon-item class="total" on-click="_soon">
+                
+            <iron-icon icon="my-icons:attach-money" slot="item-icon"></iron-icon>            
+           
+            <paper-item-body>
+              <b class="destaque">Total à pagar</b>
             </paper-item-body>
-              <h3 class="preco">
-                R$ [[item.valor]]
-              </h3>
+            <h4 class="preco">[[total]]</h4>
+          </paper-icon-item>
+        </template>
+        <template is="dom-if" if=[[!total]]>
+          <paper-icon-item class="total">
+            <paper-item-body>                  
+              Nenhum item pendente.
+            </paper-item-body>
+          </paper-icon-item>
+        </template>              
+      </div>
+
+      <div role="listbox">
+        <template id="listaPendentes" is="dom-repeat" items="{{pedidos}}" filter={{_filtrarPendentes}} sort={{_ordenar}} observe="deleted $key">
+          <paper-icon-item name="[[item.$key]]">
+            <paper-icon-button icon="my-icons:[[_getIcon(item)]]" slot="item-icon" on-click="_removeItem"></paper-icon-button>
+            <paper-item-body two-line>
+              <div><b class="destaque">[[_getItem(item.item)]]</b></div>
+              <div secondary>[[_getDataCompra(item.$key)]]</div>
+            </paper-item-body>
+              <h4 class="preco">
+                [[_getValorFormatado(item.valor)]]
+              </h4>
           </paper-icon-item>  
         </template>
       </div>
     </div>
+
+    <paper-toast id="comandaToast" text="Pagamentos em breve." class="fit-bottom" vertical-offset="64" vertical-align="top" always-on-top dynamic-align>
+      <iron-icon style="float:left; margin-right: 5px; margin-left:-5px;" icon="my-icons:info-outline"></iron-icon>
+    </paper-toast>
+    
   </template>
 
   <script>
     class MyView2 extends Polymer.Element {
       static get is() { return 'my-view2'; }
 
+      static get properties() {
+        return {
+          total: {
+            type: String,
+            notify: true,
+            value: null
+          }
+        }
+      }
+      
+      static get observers() {
+        return [
+          '_getTotal(pedidos, itemData.*)',
+          '_updateTotal(pedidos.splices)'
+          ]
+      }
+
+      _soon() {
+        this.$.comandaToast.show();
+      }
+     
+      //mover para cloud functions
+      _removeItem(item) {
+        let key = item.model.children[1].name;
+        let now = Date.now();
+        if (now - Number(key) < 3600000) {
+          this.$.item.path = "/users/" + this.user.uid + "/pedidos/" + key;
+          this.set('itemData.deleted', true);
+          this.$.comandaToast.show('Item excluído!');
+          this.$.item.path = null;   
+        } else {
+          this.$.comandaToast.show('Item não pode ser excluído após 1h do pedido.');          
+        }
+      }
+
+      _ordenar(a, b) {
+        return a.$key < b.$key ? 1 : -1;
+      }
+
+      _filtrarPendentes(item) {
+        return !item.deleted;
+      }
       _getItem(id) {
         return this.opcoes[id].nome;
       }
 
+      _getIcon(item) {
+        let remove = "remove-circle-outline";
+        let locked = "schedule";
+        let now = Date.now();
+        if (now - Number(item.$key) < 3600000) {
+          return remove;
+        } else {
+          return locked;
+        }
+      }
       _getDataCompra(t) {
-        let data = Date(t);
-        let arrayData = data.split(' '); 
-        let novaData = arrayData.splice(0, 4);
-        return novaData.join(' ');
+        let data = new Date(Number(t));
+        var formato = { weekday: "short", year: "numeric", month: "numeric",  day: "numeric" };
+        return data.toLocaleDateString('pt-br', formato);
+      }
+
+      _getValorFormatado(v) {
+        let currency = "R$ ";
+        let valor = String(v).replace ('.', ',');
+        return currency + valor;
+      }
+
+      _updateTotal(splices) {
+        if (splices == undefined) {
+          return;
+        }
+        let pendentes = splices.indexSplices[0].object;
+        this._getTotal(pendentes);
+      }
+
+      _getTotal(pendentes, x) {
+        if (!pendentes.length ) {
+          this.set('total', null);
+          return;
+        }
+        
+        let filtrado = pendentes.filter(item => item.deleted != true );
+        console.log(filtrado)
+        if (!filtrado.length ) {
+          this.set('total', null);
+          return;
+        }
+
+        let valores = filtrado.map(item => item.valor);        
+        if (valores.length > 1) {
+          var soma = valores.reduce((sum, item) => Number(sum) + Number(item));                  
+        } else {
+          var soma = Number(valores[0]);
+        }
+        
+        let total = this._getValorFormatado(soma.toFixed(2));
+        this.set('total', total);
       }
     }
 
