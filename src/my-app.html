@@ -195,10 +195,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       ready() {
         super.ready();
-        this.provider =  new firebase.auth.GoogleAuthProvider();
-        this.provider.setCustomParameters({
-          hd: "superlogica.com"
-        });
       }
       
       handleError(e) {
@@ -206,7 +202,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       signIn() {
-        this.$.auth.signInWithRedirect(this.provider);
+        this.$.auth.signInWithRedirect("google");
       }
 
       signOut() {

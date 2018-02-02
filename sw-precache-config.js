@@ -17,5 +17,5 @@ module.exports = {
     'bower_components/webcomponentsjs/*',
   ],
   navigateFallback: 'index.html',
-  navigateFallbackWhitelist: [/^(?!\/__).*/]
+  navigateFallbackWhitelist: [/^(?!\/__)/]
 };

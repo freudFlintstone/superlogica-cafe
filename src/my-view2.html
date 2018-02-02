@@ -201,7 +201,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         }
         
         let filtrado = pendentes.filter(item => item.deleted != true );
-        console.log(filtrado)
         if (!filtrado.length ) {
           this.set('total', null);
           return;

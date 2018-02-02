@@ -21,7 +21,14 @@
   },
   "builds": [
     {
-      "preset": "es6-unbundled"
+      "name": "default",
+      "js": {"minify": false},
+      "css": {"minify": true},
+      "html": {"minify": false},
+      "bundle": false,
+      "addServiceWorker": true,
+      "addPushManifest": true,
+      "insertPrefetchLinks": true
     }
   ]
 }
